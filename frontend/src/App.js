@@ -1,27 +1,19 @@
-import React, { useEffect, useState } from "react";
-import Upload from "./Upload";
-import Chat from "./Chat";
+import React from "react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import GetStarted from "./Pages/GetStarted";
+import SignIn from "./Pages/SignIn";
+import LabMateApp from "./Pages/LabMateApp";
 
 function App() {
-  const [filename, setFilename] = useState("");
-  useEffect(() => {
-    const last = localStorage.getItem("labmate_last_filename");
-    if (last) setFilename(last);
-  }, []);
   return (
-    <div style={{ maxWidth: 900, margin: "24px auto", padding: 16 }}>
-      <h1>LabMate</h1>
-      <div style={{ display: "grid", gap: 16, gridTemplateColumns: "1fr 1fr" }}>
-        <div>
-          <h3>1) Upload</h3>
-          <Upload onUploaded={setFilename} />
-        </div>
-        <div>
-          <h3>2) Ask</h3>
-          <Chat filename={filename} />
-        </div>
-      </div>
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<GetStarted />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/dashboard" element={<LabMateApp />} />
+      </Routes>
+    </Router>
   );
 }
+
 export default App;
