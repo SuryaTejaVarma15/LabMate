@@ -1,63 +1,61 @@
-.app {
-  font-family: Arial, sans-serif;
-  padding: 20px;
-  background-color: #f4f6f8;
+/* General Dashboard Layout */
+.dashboard {
   min-height: 100vh;
+  width: 100vw;
+  background-color: #f7f7f8;
+  font-family: "Arial", sans-serif;
 }
 
-.title {
-  text-align: center;
-  color: #2c3e50;
-  margin-bottom: 30px;
-}
-
-.container {
-  display: flex;
-  gap: 30px;
-  justify-content: center;
-  align-items: flex-start;
-}
-
-.card {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  width: 400px;
-}
-.section-title {
-  margin-bottom: 15px;
-  color: #34495e;
-}
-
-.input {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #dcdcdc;
-  border-radius: 8px;
-  margin-bottom: 10px;
-  font-size: 14px;
-}
-
-.btn {
-  background: #3498db;
+/* Header */
+.dashboard-header {
+  padding: 1.5rem 2rem;
+  background-color: #343541;
   color: white;
-  border: none;
-  padding: 10px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: 0.3s;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.btn:hover {
-  background: #2980b9;
+.dashboard-title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 700;
 }
 
-.answer-box {
-  margin-top: 15px;
-  padding: 12px;
-  background: #ecf0f1;
-  border-radius: 8px;
-  font-size: 15px;
-  color: #2c3e50;
+/* Container holding upload + chat */
+.dashboard-container {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  flex-wrap: wrap; /* responsive for smaller screens */
+  justify-content: center;
+}
+
+/* Card styling */
+.card {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+  padding: 2rem;
+  flex: 1 1 400px; /* responsive width */
+  max-width: 600px;
+}
+
+/* Card Titles */
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #111827;
+}
+
+/* Optional: make Upload & Chat fill the card */
+.card > * {
+  width: 100%;
+}
+
+/* Responsive tweaks */
+@media (max-width: 900px) {
+  .dashboard-container {
+    flex-direction: column;
+    align-items: center;
+  }
 }

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import "../index.css";
 
-export default function SignIn() {
+export default function SignUp() {
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const navigate = useNavigate();
@@ -13,14 +13,14 @@ export default function SignIn() {
       alert("Please fill all fields");
       return;
     }
-    // mock login success
-    navigate("/chatbot");
+    // mock signup success
+    navigate("/signin");
   };
 
   return (
     <div className="auth-page">
       <div className="card auth-card">
-        <h2 className="auth-title">Sign In</h2>
+        <h2 className="auth-title">Sign Up</h2>
         <form onSubmit={handleSubmit} className="auth-form">
           <input
             type="email"
@@ -36,10 +36,10 @@ export default function SignIn() {
             onChange={(e) => setPw(e.target.value)}
             className="auth-input"
           />
-          <button type="submit" className="auth-btn">Sign In</button>
+          <button type="submit" className="auth-btn">Sign Up</button>
         </form>
         <p className="auth-link">
-          Don’t have an account? <Link to="/signup">Sign Up</Link>
+          Already have an account? <Link to="/signin">Sign In</Link>
         </p>
       </div>
     </div>
