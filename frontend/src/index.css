@@ -19,9 +19,11 @@ body, html, #root {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;   /* Add this line */
   padding: 2rem 1rem;
   box-sizing: border-box;
 }
+
 
 /* Welcome block for landing page */
 .page-top-content {
