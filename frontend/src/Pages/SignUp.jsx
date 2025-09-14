@@ -18,8 +18,8 @@ export default function SignUp() {
   };
 
   return (
-    <div className="auth-page">
-      <div className="card auth-card">
+    <div className="page-center-wrapper">
+      <div className="page-card auth-card">
         <h2 className="auth-title">Sign Up</h2>
         <form onSubmit={handleSubmit} className="auth-form">
           <input
@@ -28,6 +28,7 @@ export default function SignUp() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="auth-input"
+            required
           />
           <input
             type="password"
@@ -35,8 +36,11 @@ export default function SignUp() {
             value={pw}
             onChange={(e) => setPw(e.target.value)}
             className="auth-input"
+            required
           />
-          <button type="submit" className="auth-btn">Sign Up</button>
+          <button type="submit" className="auth-btn">
+            Sign Up
+          </button>
         </form>
         <p className="auth-link">
           Already have an account? <Link to="/signin">Sign In</Link>
