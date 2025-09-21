@@ -4,10 +4,19 @@ import "../index.css";
 // Helper SVG for Plus icon
 function PlusIcon() {
   return (
-    <svg width="23" height="23" fill="none" stroke="currentColor" strokeWidth="3"
-      strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" style={{pointerEvents:"none"}}>
-      <line x1="12" y1="5" x2="12" y2="19"/>
-      <line x1="5" y1="12" x2="19" y2="12"/>
+    <svg
+      width="23"
+      height="23"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="3"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      viewBox="0 0 24 24"
+      style={{ pointerEvents: "none" }}
+    >
+      <line x1="12" y1="5" x2="12" y2="19" />
+      <line x1="5" y1="12" x2="19" y2="12" />
     </svg>
   );
 }
@@ -15,36 +24,91 @@ function PlusIcon() {
 export default function LabMateApp() {
   const [question, setQuestion] = useState("");
   const [messages, setMessages] = useState([]);
-  const [fileName, setFileName] = useState("");
+  const [fileName, setFileName] = useState(""); // backend-safe filename
+  const [originalFileName, setOriginalFileName] = useState(""); // For display
   const [uploadStatus, setUploadStatus] = useState("");
   const [showBottomInput, setShowBottomInput] = useState(false);
   const hiddenFileInput = useRef();
 
-  function handleAsk(e) {
+  const BACKEND_URL = "http://127.0.0.1:5000"; // update if different
+
+  // -------- Upload PDF --------
+  async function handleFileChange(e) {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      setOriginalFileName(file.name);
+      setUploadStatus("Uploading...");
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/upload`, {
+          method: "POST",
+          body: formData
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+          setFileName(data.filename); // backend-safe filename
+          setUploadStatus(
+            `Uploaded & ingested (${data.text_chunks} pages, ${data.images} images)`
+          );
+        } else {
+          setUploadStatus(`❌ Upload failed: ${data.error || "Unknown error"}`);
+        }
+      } catch (err) {
+        setUploadStatus(`❌ Upload error: ${err.message}`);
+      }
+    }
+  }
+
+  function handleAttachClick() {
+    if (hiddenFileInput.current) hiddenFileInput.current.click();
+  }
+
+  // -------- Ask Question --------
+  async function handleAsk(e) {
     e.preventDefault();
-    if (!question.trim()) return;
-    setMessages(msgs => [
-      ...msgs,
-      { role: "user", text: question },
-      { role: "bot", text: "This is a mock response from LabMate." }
-    ]);
+    if (!question.trim() || !fileName) return;
+
+    // Add user message
+    setMessages((msgs) => [...msgs, { role: "user", text: question }]);
+
+    try {
+      const res = await fetch(`${BACKEND_URL}/ask`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          filename: fileName,
+          question: question
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        const botText = `Q: ${data.question}\n\n📄 Preview: ${data.preview_text}\n\nPages: ${data.total_pages}, Images: ${data.images_found}`;
+        setMessages((msgs) => [...msgs, { role: "bot", text: botText }]);
+      } else {
+        setMessages((msgs) => [
+          ...msgs,
+          { role: "bot", text: `❌ Error: ${data.error || "Unknown error"}` }
+        ]);
+      }
+    } catch (err) {
+      setMessages((msgs) => [
+        ...msgs,
+        { role: "bot", text: `❌ Request failed: ${err.message}` }
+      ]);
+    }
+
     setQuestion("");
     setShowBottomInput(true);
   }
 
-  function handleAttachClick(e) {
-    if (hiddenFileInput.current) hiddenFileInput.current.click();
-  }
-
-  function handleFileChange(e) {
-    if (e.target.files && e.target.files[0]) {
-      setFileName(e.target.files[0].name);
-      setUploadStatus("Uploading...");
-      setTimeout(() => setUploadStatus("File uploaded! (mock)"), 1200);
-    }
-  }
-
-  // Input row with attach, input, send button
+  // -------- Input Row --------
   const inputBar = (
     <form className="chatbot-input-row" onSubmit={handleAsk}>
       <button
@@ -60,6 +124,7 @@ export default function LabMateApp() {
           type="file"
           accept="application/pdf"
           onChange={handleFileChange}
+          style={{ display: "none" }}
         />
       </button>
       <input
@@ -67,7 +132,7 @@ export default function LabMateApp() {
         type="text"
         placeholder="Ask anything"
         value={question}
-        onChange={e => setQuestion(e.target.value)}
+        onChange={(e) => setQuestion(e.target.value)}
         autoFocus
       />
       <button className="chatbot-send-btn" type="submit">
@@ -78,21 +143,33 @@ export default function LabMateApp() {
 
   return (
     <div className="chatbot-main-wrapper">
-      {/* Main Content: Greeting and Input */}
+      {/* Greeting + Input (before first ask) */}
       {!showBottomInput && (
         <div className="chatbot-center-content">
           <div className="greeting">Good to see you, LabMate User.</div>
           {inputBar}
-          {fileName && <div className="status-message">{uploadStatus} ({fileName})</div>}
+          {originalFileName && (
+            <div className="status-message">
+              {uploadStatus} ({originalFileName})
+            </div>
+          )}
         </div>
       )}
-      {/* Messages and persistent input at bottom */}
+
+      {/* Chat messages + persistent input */}
       {showBottomInput && (
         <>
-          <div className="chatbot-messages" style={{margin: "0 auto", marginTop: 24, marginBottom: 12}}>
+          <div
+            className="chatbot-messages"
+            style={{ margin: "0 auto", marginTop: 24, marginBottom: 12 }}
+          >
             {messages.map((msg, i) => (
               <div key={i} className="message-row">
-                <div className={`message-bubble ${msg.role === "user" ? "message-user" : "message-bot"}`}>
+                <div
+                  className={`message-bubble ${
+                    msg.role === "user" ? "message-user" : "message-bot"
+                  }`}
+                >
                   {msg.text}
                 </div>
               </div>
@@ -100,7 +177,11 @@ export default function LabMateApp() {
           </div>
           <div className="chatbot-bottom-content">
             {inputBar}
-            {fileName && <div className="status-message">{uploadStatus} ({fileName})</div>}
+            {originalFileName && (
+              <div className="status-message">
+                {uploadStatus} ({originalFileName})
+              </div>
+            )}
           </div>
         </>
       )}
